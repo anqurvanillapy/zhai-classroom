@@ -15,3 +15,7 @@ class Dogs:
 
     def __delitem__(self, k):
         del self._store[k]
+
+
+def validate_form(*args):
+    return all(args) and all([s.isalnum() for s in args])
