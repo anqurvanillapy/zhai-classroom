@@ -3,7 +3,7 @@
   <title>Zhai Ltd.</title>
 </head>
 <body>
-  <form method="POST" action="/signin">
+  <form id="signin-form" method="POST" action="/signin">
     用户名 <input type="text" name="username" required>
     密码 <input type="password" name="password" required>
     <button type="submit">登录</button>
@@ -15,6 +15,56 @@
     <button type="submit">注册</button>
   </form>
 <script>
+// 获得登录的表格元素.
+const $signinForm = document.getElementById('signin-form')
+let form, username
+
+// 捕获它的 "提交" 事件, 因为用户可以鼠标点击, 也可以回车, 也可以空格,
+// 所以捕捉这个事件会包括很多用户的操作.
+$signinForm.onsubmit = () => {
+  form = new FormData($signinForm)
+  username = form.get('username')
+  submitSigninForm()
+  // 返回 false 就是不允许用户通过默认方式提交这个表单, 提交的逻辑我们自己定义.
+  return false
+}
+
+function submitSigninForm () {
+  // 不使用浏览器默认发送表单的方法, 我们用 XHR (AJAX 的一种, 另一种叫 fetch)
+  // 方法发送我们的表单.
+  const xhr = new XMLHttpRequest()
+
+  xhr.onreadystatechange = () => {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+      if (xhr.status === 200) {
+        const token = JSON.parse(xhr.responseText).token
+        window.localStorage.setItem('zhai_token', token)
+        return enterProfile(token)
+      }
+
+      document.write(`user '${username}' signin failed`)
+    }
+  }
+
+  xhr.open('POST', '/signin')
+  xhr.send(form)
+}
+
+function enterProfile (token) {
+  const xhr = new XMLHttpRequest()
+  const url = `/user/${username}`
+
+  xhr.onreadystatechange = () => {
+    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+      document.write(xhr.responseText)
+      window.history.pushState({}, `${username} | Zhai Ltd.`, url)
+    }
+  }
+
+  xhr.open('GET', url)
+  xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+  xhr.send()
+}
 </script>
 </body>
 </html>
