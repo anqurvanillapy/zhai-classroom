@@ -4,7 +4,7 @@
 
 class Students:
 
-    def __init__(self, pre={}):
+    def __init__(self, *pre):
         self._store = {}
         self._item = {
             "username": None,
@@ -16,12 +16,16 @@ class Students:
         }
         if pre:
             try:
-                self.__setitem__(pre["username"], pre)
+                for p in pre:
+                    self.__setitem__(p["username"], p)
             except:
                 pass
 
     def __getitem__(self, k):
         return self._store.get(k)
+
+    def getall(self):
+        return self._store.values()
 
     def __setitem__(self, k, v):
         item = self._item.copy()
@@ -37,25 +41,21 @@ class Students:
 
 class Bulletins:
 
-    def __init__(self, pre={}):
+    def __init__(self, *pre):
         self._store = []
-        self._item = {
-            "title": None, "content": None, "username": None, "date": None
-        }
+        self._item = {"title": None, "content": None, "date": None}
         if pre:
             try:
-                self.setitem(pre)
+                for p in pre:
+                    self.setitem(p)
             except:
                 pass
 
     def getitem(self, i):
         return self._store[i]
 
-    def getall(self, s):
-        return [
-            dict(b, **{"uploader": s[b["username"]]["name"]})
-            for b in self._store
-        ]
+    def getall(self):
+        return self._store
 
     def setitem(self, v):
         item = self._item.copy()
@@ -68,23 +68,21 @@ class Bulletins:
 
 class Photos:
 
-    def __init__(self, pre={}):
+    def __init__(self, *pre):
         self._store = []
-        self._item = {"filename": None, "username": None, "date": None}
+        self._item = {"filename": None, "date": None}
         if pre:
             try:
-                self.setitem(pre)
+                for p in pre:
+                    self.setitem(p)
             except:
                 pass
 
     def getitem(self, i):
         return self._store[i]
 
-    def getall(self, s):
-        return [
-            dict(b, **{"uploader": s[b["uploaderid"]]["name"]})
-            for b in self._store
-        ]
+    def getall(self):
+        return self._store
 
     def setitem(self, v):
         item = self._item.copy()

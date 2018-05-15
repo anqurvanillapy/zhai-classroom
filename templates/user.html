@@ -1,4 +1,75 @@
 {% extends "layout.html" %}
 {% block content %}
-<p>Hi, {{username}}! This is your profile.</p>
+<h1>公告</h1>
+
+{% if is_admin %}
+<form method="POST" action="/add/bulletin">
+  <button>上传</button>
+</form>
+{% endif %}
+
+<ul>
+  {% for i, b in bulletins %}
+  <li>
+    <details>
+      <summary>
+        {{ b['title'] }}
+        <em>{{ b['date'] }}</em>
+        {% if is_admin %}
+        <form method="POST" action="/del/bulletin">
+          <button>&times;</button>
+          <input name="index" value="{{ i }}" hidden>
+          <input name="username" value="{{ username }}" hidden>
+        </form>
+        {% endif %}
+      </summary>
+      <p>{{ b['content'] }}</p>
+    </details>
+  </li>
+  {% endfor %}
+</ul>
+
+<h1>班级活动照片</h1>
+
+{% if is_admin %}
+<form method="POST" action="/add/photo">
+  <button>上传</button>
+</form>
+{% endif %}
+
+<ul>
+  {% for i, p in photos %}
+  <li>
+    <em>
+      {{ p['date'] }}
+    </em>
+    {% if is_admin %}
+    <form method="POST" action="/del/photo">
+      <input name="index" value="{{ i }}" hidden>
+      <input name="username" value="{{ username }}" hidden>
+      <button>&times;</button>
+    </form>
+    {% endif %}
+    <img src="/img/{{ p['filename'] }}" alt="{{ p['filename'] }}">
+  </li>
+  {% endfor %}
+</ul>
+
+{% if is_admin  %}
+<h1>管理班级</h1>
+  {% for s in students %}
+  <p>{{ s['name'] }}</p>
+  {% endfor %}
+{% endif %}
+
+<style>
+main img {
+  width: 100%;
+  box-shadow: .5em .5em #eee;
+}
+
+ul form {
+  display: inline;
+}
+</style>
 {% endblock %}

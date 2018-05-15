@@ -29,7 +29,7 @@ function submitSigninForm () {
       if (xhr.status === 200) {
         const token = JSON.parse(xhr.responseText).token
         window.localStorage.setItem('iot14_tk', token)
-        window.location.href = `/home`
+        window.location.href = `/user/${form.get('username')}`
         return
       }
 

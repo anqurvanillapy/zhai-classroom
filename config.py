@@ -10,6 +10,7 @@ CFG_NAME = ".apprc"
 def read():
     _cfg = {
         "timedelta": dt.timedelta(weeks=10),
+        "asset_path": "img",
         "max_filename_lenght": 64,
         "allowed_fileexts": ["png", "jpg", "jpeg"],
     }

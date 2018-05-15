@@ -3,8 +3,17 @@
 """
 
 import datetime as dt
+import json
 
-from flask import Flask, request, abort, redirect, jsonify, make_response
+from flask import (
+    Flask,
+    request,
+    abort,
+    redirect,
+    jsonify,
+    make_response,
+    send_from_directory,
+)
 from werkzeug import (
     generate_password_hash,
     check_password_hash,
@@ -45,7 +54,15 @@ students = Students(
         "name": "Marline",
         "address": "Shenzhen",
         "contact": "10085",
-    }
+    },
+    {
+        "username": "2",
+        "password": generate_password_hash("2"),
+        "is_admin": False,
+        "name": "Anqur",
+        "address": "Shenzhen",
+        "contact": "10086",
+    },
 )
 bulletins = Bulletins(
     {
@@ -57,7 +74,7 @@ bulletins = Bulletins(
 )
 photos = Photos(
     {
-        "filename": "activity.jpg",
+        "filename": "grad.jpg",
         "username": "1",
         "date": dt.datetime.now().ctime(),
     }
@@ -68,9 +85,9 @@ env = Environment(
     loader=PackageLoader(__name__, "templates"), autoescape=select_autoescape
 )
 
-[index_tmpl, app_tmpl, home_content_tmpl, user_content_tmpl] = [
+[index_tmpl, app_tmpl, user_content_tmpl, profile_content_tmpl] = [
     env.get_template(f)
-    for f in ["index.html", "app.html", "home.html", "user.html"]
+    for f in ["index.html", "app.html", "user.html", "profile.html"]
 ]
 
 
@@ -115,21 +132,6 @@ def signup():
         return redirect("/")
 
 
-@app.route("/home", methods=["GET", "POST"])
-def home():
-    if request.method == "GET":
-        return app_tmpl.render(url="/home", username=user)
-    else:
-        try:
-            assert validate_token(request)
-            return home_content_tmpl.render(
-                bulletins=bulletins.getall(students)
-            )
-        except Exception as e:
-            raise e
-            return abort(401)
-
-
 @app.route("/user/<user>", methods=["GET", "POST"])
 def user(user):
     if request.method == "GET":
@@ -137,9 +139,88 @@ def user(user):
     else:
         try:
             assert validate_token(request)
-            return user_content_tmpl.render(username=user)
+            return user_content_tmpl.render(
+                username=user,
+                is_admin=students[user]["is_admin"],
+                students=students.getall(),
+                bulletins=enumerate(bulletins.getall()),
+                photos=enumerate(photos.getall()),
+            )
+        except Exception as e:
+            raise e
+            return abort(401)
+
+
+@app.route("/profile/<user>", methods=["GET", "POST"])
+def profile(user):
+    if request.method == "GET":
+        return app_tmpl.render(url="/profile/{}".format(user), username=user)
+    else:
+        try:
+            assert validate_token(request)
+            return profile_content_tmpl.render(username=user)
         except:
             return abort(401)
+
+
+@app.route("/add/student", methods=["POST"])
+def admin_set_student():
+    try:
+        students[request.form["username"]] = request.form
+        return redirect("/user/{}".format(request.form["username"]))
+    except:
+        return abort(400)
+
+
+@app.route("/del/student", methods=["POST"])
+def admin_del_student():
+    try:
+        del students[request.form["username"]]
+        return redirect("/user/{}".format(request.form["username"]))
+    except:
+        return abort(400)
+
+
+@app.route("/add/bulletin", methods=["POST"])
+def admin_set_bulletin():
+    try:
+        bulletins.setitem(request.form)
+        return redirect("/user/{}".format(request.form["username"]))
+    except:
+        return abort(400)
+
+
+@app.route("/del/bulletin", methods=["POST"])
+def admin_del_bulletin():
+    try:
+        bulletins.delitem(int(request.form["index"]))
+        return redirect("/user/{}".format(request.form["username"]))
+    except Exception as e:
+        raise e
+        return abort(400)
+
+
+@app.route("/add/photo", methods=["POST"])
+def admin_set_photo():
+    try:
+        photos.setitem(request.form)
+        return redirect("/user/{}".format(request.form["username"]))
+    except:
+        return abort(400)
+
+
+@app.route("/del/photo", methods=["POST"])
+def admin_del_photo():
+    try:
+        photos.delitem(int(request.form["index"]))
+        return redirect("/user/{}".format(request.form["username"]))
+    except:
+        return abort(400)
+
+
+@app.route("/img/<path:f>")
+def send_img(f):
+    return send_from_directory(cfg["asset_path"], f)
 
 
 app.run()
