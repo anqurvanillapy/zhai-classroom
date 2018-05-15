@@ -1,6 +1,6 @@
-# Zhai Ltd. 债氏集团
+# Zhai Classroom. 债债一班
 
-债氏集团总裁试图用此 app 管理公司的所有狗子.
+债债试图用此 app 管理班里的学生.
 
 ## 依赖
 
@@ -10,7 +10,7 @@
 * `jinja2`: 模板引擎
 * `werkzeug`: 实用工具
 * `pyjwt`: Authentication
-* 数据库 *待定*
+* 数据库: MySQL
 
 ## 安装/运行
 
@@ -19,10 +19,6 @@
 ```bash
 $ python3 app.py
 ```
-
-## 其他
-
-* 代码破坏了自注释的原则使用大量 *"多余"* 注释, 供新手阅读
 
 ## License
 

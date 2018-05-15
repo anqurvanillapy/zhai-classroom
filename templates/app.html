@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block content %}
+<header>
+  <h1>IoT14</h1>
+  <ul>
+    <li><a href="/">[ 首页 ]</a></li>
+    <li><a href="/user/{{ username }}">[ 个人信息 ]</a></li>
+    <li><a href="/staff">[ 教师风采 ]</a></li>
+  </ul>
+</header>
+<main>
+</main>
+{% endblock %}
+{% block script %}
+<script>
+;(async () => {
+
+try {
+  const content = await fetchContent('POST', '{{ url }}')
+  const $main = document.querySelector('main')
+  $main.insertAdjacentHTML('beforeend', content)
+} catch (err) {
+  window.location.href = '/'
+}
+
+})()
+</script>
+<style>
+header {
+  width: 100%;
+}
+  header ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    justify-content: space-evenly;
+  }
+  header h1 {
+    padding: .3em;
+    font-family: verdana, helvetica, sans-serif;
+    font-size: x-large;
+    text-align: center;
+    text-decoration: underline;
+  }
+  header a {
+    color: #000;
+    text-decoration: none;
+  }
+
+main {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 1em;
+}
+  main h1 {
+    font-size: medium;
+  }
+
+@media screen and (min-width: 720px) {
+  header, main, footer { width: 60%; }
+}
+</style>
+{% endblock %}

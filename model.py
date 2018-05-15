@@ -1,27 +1,95 @@
 """Data models.
 """
 
-# 狗子数据库, 还没有使用 MySQL, 先用内存存储的 dict 代替.
-class Dogs:
 
-    def __init__(self, pre=[]):
-        # 狗子是从 用户名 到 密码 的一个映射 (map).
+class Students:
+
+    def __init__(self, pre={}):
         self._store = {}
-        try:
-            # 尝试把提前要存的狗子 (pre) 存入, 比如用作测试.
-            self._store.update(pre)
-        except:
-            # 发生错误不用处理.
-            pass
+        self._item = {
+            "username": None,
+            "is_admin": False,
+            "password": None,
+            "name": None,
+            "address": None,
+            "contact": None,
+        }
+        if pre:
+            try:
+                self.__setitem__(pre["username"], pre)
+            except:
+                pass
 
     def __getitem__(self, k):
-        # 根据用户名获取狗子的密码.
         return self._store.get(k)
 
     def __setitem__(self, k, v):
-        # 修改用户名对应的密码.
-        self._store[k] = v
+        item = self._item.copy()
+        item.update(v)
+        try:
+            self._store[k].update(item)
+        except KeyError:
+            self._store[k] = item
 
     def __delitem__(self, k):
-        # 删除某个用户.
         del self._store[k]
+
+
+class Bulletins:
+
+    def __init__(self, pre={}):
+        self._store = []
+        self._item = {
+            "title": None, "content": None, "username": None, "date": None
+        }
+        if pre:
+            try:
+                self.setitem(pre)
+            except:
+                pass
+
+    def getitem(self, i):
+        return self._store[i]
+
+    def getall(self, s):
+        return [
+            dict(b, **{"uploader": s[b["username"]]["name"]})
+            for b in self._store
+        ]
+
+    def setitem(self, v):
+        item = self._item.copy()
+        item.update(v)
+        self._store.append(item)
+
+    def delitem(self, i):
+        del self._store[i]
+
+
+class Photos:
+
+    def __init__(self, pre={}):
+        self._store = []
+        self._item = {"filename": None, "username": None, "date": None}
+        if pre:
+            try:
+                self.setitem(pre)
+            except:
+                pass
+
+    def getitem(self, i):
+        return self._store[i]
+
+    def getall(self, s):
+        return [
+            dict(b, **{"uploader": s[b["uploaderid"]]["name"]})
+            for b in self._store
+        ]
+
+    def setitem(self, v):
+        item = self._item.copy()
+        item.update(v)
+        self._store.append(item)
+
+    def delitem(self, i):
+        del self._store[i]

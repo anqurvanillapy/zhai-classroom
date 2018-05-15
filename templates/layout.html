@@ -1,0 +1,32 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="initial-scale=1">
+  <title>Zhai Classroom</title>
+  <style>
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box !important;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  </style>
+</head>
+<body>
+{% block content %}
+{% endblock %}
+<script>
+{% include "jwt-util.js" %}
+</script>
+{% block script %}
+{% endblock %}
+</body>
+</html>

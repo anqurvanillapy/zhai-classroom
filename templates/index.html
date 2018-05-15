@@ -1,70 +1,59 @@
-<html>
-<head>
-  <title>Zhai Ltd.</title>
-</head>
-<body>
-  <form id="signin-form" method="POST" action="/signin">
+{% extends "layout.html" %}
+{% block content %}
+<form id="signin-form" method="POST" action="/signin">
+  <h1>IoT14</h1>
+  <p>
     用户名 <input type="text" name="username" required>
+  </p>
+  <p style="padding-left: 1em">
     密码 <input type="password" name="password" required>
+  </p>
+  <p>
     <button type="submit">登录</button>
-  </form>
-  <hr>
-  <form method="POST" action="/signup">
-    用户名 <input type="text" name="username" required>
-    密码 <input type="password" name="password" required>
-    <button type="submit">注册</button>
-  </form>
+  </p>
+</form>
 <script>
-// 获得登录的表格元素.
 const $signinForm = document.getElementById('signin-form')
-let form, username
 
-// 捕获它的 "提交" 事件, 因为用户可以鼠标点击, 也可以回车, 也可以空格,
-// 所以捕捉这个事件会包括很多用户的操作.
 $signinForm.onsubmit = () => {
-  form = new FormData($signinForm)
-  username = form.get('username')
   submitSigninForm()
-  // 返回 false 就是不允许用户通过默认方式提交这个表单, 提交的逻辑我们自己定义.
   return false
 }
 
 function submitSigninForm () {
-  // 不使用浏览器默认发送表单的方法, 我们用 XHR (AJAX 的一种, 另一种叫 fetch)
-  // 方法发送我们的表单.
   const xhr = new XMLHttpRequest()
+  const form = new FormData($signinForm)
 
   xhr.onreadystatechange = () => {
     if (xhr.readyState === XMLHttpRequest.DONE) {
       if (xhr.status === 200) {
         const token = JSON.parse(xhr.responseText).token
-        window.localStorage.setItem('zhai_token', token)
-        return enterProfile(token)
+        window.localStorage.setItem('iot14_tk', token)
+        window.location.href = `/home`
+        return
       }
 
-      document.write(`user '${username}' signin failed`)
+      document.write('user signin failed')
     }
   }
 
   xhr.open('POST', '/signin')
   xhr.send(form)
 }
-
-function enterProfile (token) {
-  const xhr = new XMLHttpRequest()
-  const url = `/user/${username}`
-
-  xhr.onreadystatechange = () => {
-    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-      document.write(xhr.responseText)
-      window.history.pushState({}, `${username} | Zhai Ltd.`, url)
-    }
-  }
-
-  xhr.open('GET', url)
-  xhr.setRequestHeader('Authorization', `Bearer ${token}`)
-  xhr.send()
-}
 </script>
-</body>
-</html>
+<style>
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+form {
+  text-align: center;
+}
+
+h1 {
+  font-family: verdana, helvetica, sans-serif;
+}
+</style>
+{% endblock %}
