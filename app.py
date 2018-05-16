@@ -4,6 +4,7 @@
 
 import datetime as dt
 import json
+from os import path
 
 from flask import (
     Flask,
@@ -81,6 +82,7 @@ photos = Photos(
 )
 
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = cfg["max_content_length"]
 env = Environment(
     loader=PackageLoader(__name__, "templates"), autoescape=select_autoescape
 )
@@ -158,17 +160,21 @@ def profile(user):
     else:
         try:
             assert validate_token(request)
-            return profile_content_tmpl.render(username=user)
+            return profile_content_tmpl.render(**students[user])
         except:
             return abort(401)
 
 
-@app.route("/add/student", methods=["POST"])
+@app.route("/set/student", methods=["POST"])
 def admin_set_student():
     try:
-        students[request.form["username"]] = request.form
-        return redirect("/user/{}".format(request.form["username"]))
-    except:
+        form = request.form.to_dict()
+        form["is_admin"] = students[form["username"]]["is_admin"]
+        form["password"] = generate_password_hash(form["password"])
+        students[request.form["username"]] = form
+        return redirect("/user/{}".format(request.form["uploader"]))
+    except Exception as e:
+        raise
         return abort(400)
 
 
@@ -176,7 +182,7 @@ def admin_set_student():
 def admin_del_student():
     try:
         del students[request.form["username"]]
-        return redirect("/user/{}".format(request.form["username"]))
+        return redirect("/user/{}".format(request.form["admin"]))
     except:
         return abort(400)
 
@@ -184,7 +190,10 @@ def admin_del_student():
 @app.route("/add/bulletin", methods=["POST"])
 def admin_set_bulletin():
     try:
-        bulletins.setitem(request.form)
+        assert validate_form(request.form["title"], request.form["content"])
+        form = request.form.to_dict()
+        form["date"] = dt.datetime.now().ctime()
+        bulletins.setitem(form)
         return redirect("/user/{}".format(request.form["username"]))
     except:
         return abort(400)
@@ -203,9 +212,16 @@ def admin_del_bulletin():
 @app.route("/add/photo", methods=["POST"])
 def admin_set_photo():
     try:
-        photos.setitem(request.form)
+        f = request.files["file"]
+        assert validate_filename(f.filename)
+        filepath = secure_filename(f.filename)
+        f.save(path.join(cfg["img_path"], filepath))
+        photos.setitem(
+            {"filename": f.filename, "date": dt.datetime.now().ctime()}
+        )
         return redirect("/user/{}".format(request.form["username"]))
-    except:
+    except Exception as e:
+        raise e
         return abort(400)
 
 
@@ -220,7 +236,7 @@ def admin_del_photo():
 
 @app.route("/img/<path:f>")
 def send_img(f):
-    return send_from_directory(cfg["asset_path"], f)
+    return send_from_directory(cfg["img_path"], f)
 
 
 app.run()

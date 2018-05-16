@@ -1,10 +1,22 @@
 {% extends "layout.html" %}
 {% block content %}
+
+<hr>
+
 <h1>公告</h1>
 
 {% if is_admin %}
 <form method="POST" action="/add/bulletin">
-  <button>上传</button>
+  <p>
+    标题 <input name="title" required>
+  </p>
+  <p>
+    内容 <textarea name="content" rows="3" required></textarea>
+  </p>
+  <input name="username" value="{{ username }}" hidden>
+  <p>
+    <button>上传</button>
+  </p>
 </form>
 {% endif %}
 
@@ -29,11 +41,19 @@
   {% endfor %}
 </ul>
 
+<hr>
+
 <h1>班级活动照片</h1>
 
 {% if is_admin %}
-<form method="POST" action="/add/photo">
-  <button>上传</button>
+<form method="POST" action="/add/photo" enctype="multipart/form-data">
+  <p>
+    <input type="file" name="file" required>
+    <input name="username" value="{{ username }}" hidden>
+  </p>
+  <p>
+    <button>上传</button>
+  </p>
 </form>
 {% endif %}
 
@@ -56,20 +76,88 @@
 </ul>
 
 {% if is_admin  %}
+
+<hr>
+
 <h1>管理班级</h1>
+
+<form method="POST" action="/set/student">
+  <input name="uploader" value="{{ username }}" hidden>
+  <p>
+    学号 <input name="username" required>
+  </p>
+  <p>
+    密码 <input type="password" name="password" required>
+  </p>
+  <p>
+    姓名 <input name="name" required>
+  </p>
+  <p>
+    宿舍 <input name="address" required>
+  </p>
+  <p>
+    联系方式 <input type="tel" name="contact" required>
+  </p>
+  <button>添加</button>
+</form>
+
+<ul>
+  班级名单
   {% for s in students %}
-  <p>{{ s['name'] }}</p>
+  <li>
+    <form method="POST" action="/set/student">
+      <input name="uploader" value="{{ username }}" hidden>
+      <input name="username" value="{{ s['username'] }}" hidden>
+      <p>
+        <input
+          name="unmodifiable"
+          value="{{ s['username'] }}"
+          placeholder="学号"
+          disabled
+        >
+        <input name="password" placeholder="新的密码" required>
+      </p>
+      <p>
+        <input name="name" value="{{ s['name'] }}" placeholder="姓名" required>
+        <input
+          name="address"
+          value="{{ s['address'] }}"
+          placeholder="宿舍"
+          required
+        >
+        <input
+          type="tel"
+          name="contact"
+          value="{{ s['contact'] }}"
+          placeholder="联系方式"
+          required
+        >
+      </p>
+      <button>修改</button>
+    </form>
+    {% if s['is_admin'] %}
+    {% else %}
+    <form method="POST" action="/del/student">
+      <input name="uploader" value="{{ username }}" hidden>
+      <input name="username" value="{{ s['username'] }}" hidden>
+      <button>&times;</button>
+    </form>
+    {% endif %}
+  </li>
   {% endfor %}
+</ul>
+
 {% endif %}
 
 <style>
-main img {
-  width: 100%;
-  box-shadow: .5em .5em #eee;
-}
-
 ul form {
   display: inline;
+}
+
+ul img {
+  width: 100%;
+  box-shadow: .5em .5em #eee;
+  margin: 1.5em 0;
 }
 </style>
 {% endblock %}

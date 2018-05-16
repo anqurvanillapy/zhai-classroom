@@ -1,4 +1,36 @@
 {% extends "layout.html" %}
 {% block content %}
-<p>Hi, {{username}}! This is your profile.</p>
+<h1>个人信息</h1>
+
+<form method="POST" action="/set/student">
+  <input name="uploader" value="{{ username }}" hidden>
+  <input name="username" value="{{ username }}" hidden>
+  <p>
+    <input name="unmodifiable" value="{{ username }}" disabled>
+  </p>
+  <p>
+    <input type="password" name="password" placeholder="新的密码" required>
+  </p>
+  <p>
+    <input name="name" value="{{ name }}" placeholder="姓名" required>
+  </p>
+  <p>
+    <input
+      name="address"
+      value="{{ address }}"
+      placeholder="宿舍"
+      required
+    >
+  </p>
+  <p>
+    <input
+      type="tel"
+      name="contact"
+      value="{{ contact }}"
+      placeholder="联系方式"
+      required
+    >
+  </p>
+  <button>确认修改</button>
+</form>
 {% endblock %}
